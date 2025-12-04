@@ -7,7 +7,7 @@ export const mailerConfig: MailerOptions = {
   transport: {
     service: process.env.EMAIL_SERVICE,
     host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT),
+    port: parseInt(process.env.EMAIL_PORT || '587'),
     secure: Boolean(process.env.EMAIL_SECURE),
     auth: {
       user: process.env.EMAIL_USER,
