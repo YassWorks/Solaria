@@ -18,7 +18,15 @@ export class User {
 
   @Prop({ required: true })
   password: string;
+  
+  @Prop()
+  salt: string;
 
+  @Prop({ required: true })
+  phone: string;
+
+  @Prop({ required: true })
+  fullname: string;
 
   @Prop({ required: true, enum: Object.values(Role), default: Role.USER })
   role: Role;

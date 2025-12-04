@@ -29,7 +29,7 @@ export class UserService {
     const walletAddress = createUserDto.walletAddress ? encrypt(createUserDto.walletAddress) : undefined;
     const encryptedWallet = createUserDto.encryptedWallet ? encrypt(createUserDto.encryptedWallet) : undefined;
 
-    const user = new this.userModel({ ...createUserDto, password, walletAddress, encryptedWallet });
+    const user = new this.userModel({ ...createUserDto, password, salt, walletAddress, encryptedWallet });
     return user.save();
   }
 

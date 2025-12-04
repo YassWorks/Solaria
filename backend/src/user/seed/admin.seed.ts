@@ -19,7 +19,10 @@ export class AdminSeeder {
       await this.adminModel.create({
         email: 'admin@solaria.com',
         cin: 'ADMIN001',
+        phone: '98765432',
+        fullname: 'Solaria Admin',
         password,
+        salt,
         role: Role.ADMIN,
         walletAddress: '0xAdminWallet',
         encryptedWallet: 'encryptedAdminWallet',
