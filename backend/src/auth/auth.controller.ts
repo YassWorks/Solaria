@@ -12,10 +12,13 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiBadGatewayResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
+import { CurrentUser } from 'src/shared/decorators/user.decorator';
+import { User } from 'src/user/schemas/user.schema';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -43,5 +46,21 @@ export class AuthController {
 
     const token = authHeader.split(' ')[1];
     return this.authService.verifyToken(token);
+  }
+
+  @Get('/me')
+  @ApiOperation({ summary: 'Get my profile' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiResponse({ status: 200, description: 'My profile' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request, please check your request',
+  })
+  async me(@CurrentUser() myProfile: User) {
+    return myProfile;
   }
 }

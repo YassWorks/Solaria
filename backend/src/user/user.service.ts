@@ -15,6 +15,7 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>
   ) {}
 
+  
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const emailExists = await this.userModel.findOne({ email: createUserDto.email });
     if (emailExists) throw new ConflictException('User already exists!');
@@ -39,7 +40,7 @@ export class UserService {
   }
 
   async findOneByEmail(email: string) {
-    const user = await this.userModel.findOne({ email, deletedAt: null });
+    const user = await this.userModel.findOne({ email, deletedAt: null }).lean();
     if (!user) throw new NotFoundException(`User with email ${email} not found`);
     return user;
   }
