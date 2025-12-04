@@ -1,26 +1,17 @@
 import pandas as pd
 from pathlib import Path
 
+
 data_path = Path(__file__).parent.parent / "data"
+df = pd.read_csv(str(data_path / "data.csv"))
 
-data1 = pd.read_csv(str(data_path / "data1.csv"))
-data2 = pd.read_csv(str(data_path / "data2.csv"))
+old_count = df.shape[0]
 
-data1["DATE_TIME"] = pd.to_datetime(data1["DATE_TIME"], format="%d-%m-%Y %H:%M")
-data2["DATE_TIME"] = pd.to_datetime(data2["DATE_TIME"], format="%Y-%m-%d %H:%M:%S")
+# remove any rows where AC_POWER or DC_POWER or IRRADIATION is 0
+df = df[(df['AC_POWER'] != 0) & (df['DC_POWER'] != 0) & (df['IRRADIATION'] != 0)]
 
-cols_to_keep_in_1 = [
-    "DATE_TIME",
-    "DC_POWER",
-    "AC_POWER",
-]
+new_count = df.shape[0]
 
-cols_to_keep_in_2 = [
-    "DATE_TIME",
-    "AMBIENT_TEMPERATURE",
-    "MODULE_TEMPERATURE",
-    "IRRADIATION",
-]
+print(f"Removed {old_count - new_count} rows.")
 
-merged_data = pd.merge(data1[cols_to_keep_in_1], data2[cols_to_keep_in_2], on="DATE_TIME", how="inner")
-merged_data.to_csv(str(data_path / "data.csv"), index=False)
+df.to_csv(str(data_path / "cleaned_data.csv"), index=False)
