@@ -14,7 +14,7 @@ async function bootstrap() {
     }),
   );
 
-  if (process.env.NODE_ENV == 'development') swagger(app);
+  if (process.env.NODE_ENV !== 'production') swagger(app);
 
   //Graceful shutdown
   process.on('SIGTERM', async () => {
