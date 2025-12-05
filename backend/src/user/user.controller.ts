@@ -1,14 +1,15 @@
-import { Controller, Get, Post, Patch, Body, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { User } from './schemas/user.schema';
 import { PaginationQueryDto } from 'src/config/pagination/dto/pagination-query.dto';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { Role } from 'src/shared/Enums/role.enum';
+import { createFileUploadInterceptor } from 'src/shared/interceptors/file-upload.interceptor';
 
 @ApiTags('Users')
 @Controller('users')
@@ -21,6 +22,16 @@ export class UserController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.', type: User })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    createFileUploadInterceptor({
+      fieldName: 'photoUrl',
+      destination: 'users',
+      allowedFileTypes: /\.(jpg|jpeg|png)$/i,
+      fileSizeLimit: 1048576,
+      defaultPhotoPath: 'uploads/defaults/defaultUserImage.jpeg',
+    }),
+  )
   async create(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
   }
@@ -39,6 +50,14 @@ export class UserController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    createFileUploadInterceptor({
+      fieldName: 'photoUrl',
+      destination: 'users',
+      allowedFileTypes: /\.(jpg|jpeg|png)$/i,
+      fileSizeLimit: 1048576,
+    }),
+  )
   @ApiOperation({ summary: 'Update user by ID' })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateUser(id, updateUserDto);

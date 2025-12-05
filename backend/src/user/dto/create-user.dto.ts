@@ -1,4 +1,5 @@
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength, IsOptional, IsNumber } from 'class-validator';
 import { Role } from 'src/shared/Enums/role.enum';
 
@@ -20,6 +21,7 @@ export class CreateUserDto {
   @ApiProperty({ example: '12345678' })
   @IsNumber()
   @IsNotEmpty()
+  @Type(() => Number)
   readonly phone: number;
 
   @ApiProperty({ example: 'Password123!' })
@@ -40,4 +42,13 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   readonly encryptedWallet?: string;
+
+  @IsOptional()
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    description: 'Photo of the user',
+    required: false,
+  })
+  photoUrl: string;
 }

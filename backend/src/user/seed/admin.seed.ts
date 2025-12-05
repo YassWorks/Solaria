@@ -23,6 +23,7 @@ export class AdminSeeder {
         fullname: 'Solaria Admin',
         password,
         salt,
+        photoUrl: "uploads/defaults/defaultUserImage.jpeg",
         role: Role.ADMIN,
         walletAddress: '0xAdminWallet',
         encryptedWallet: 'encryptedAdminWallet',
