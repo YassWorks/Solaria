@@ -1,0 +1,26 @@
+{
+  "name": "energy-token-oracle",
+  "version": "1.0.0",
+  "description": "Oracle simulator for Energy Token production data",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node test-oracle.js"
+  },
+  "keywords": [
+    "solar",
+    "oracle",
+    "blockchain",
+    "energy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.16.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
