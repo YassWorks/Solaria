@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,6 +20,8 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
 import { CurrentUser } from 'src/shared/decorators/user.decorator';
 import { User } from 'src/user/schemas/user.schema';
+import { SignUpDto } from './dto/sign-up.dto';
+import { createFileUploadInterceptor } from 'src/shared/interceptors/file-upload.interceptor';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -62,5 +65,21 @@ export class AuthController {
   })
   async me(@CurrentUser() myProfile: User) {
     return myProfile;
+  }
+
+  @Post('/signup')
+  @ApiOperation({ summary: 'Create a new user' })
+  @UseInterceptors(
+    createFileUploadInterceptor({
+      fieldName: 'photoUrl',
+      destination: 'users',
+      allowedFileTypes: /\.(jpg|jpeg|png)$/i,
+      fileSizeLimit: 1048576,
+      defaultPhotoPath: 'uploads/defaults/defaultUserImage.jpeg',
+    }),
+  )
+  @ApiResponse({ status: 201, description: 'User created successfully.', type: User })
+  async signuo(@Body() signUpDto: SignUpDto) {
+    return this.authService.SignUp(signUpDto);
   }
 }

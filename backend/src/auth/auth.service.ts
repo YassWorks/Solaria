@@ -4,6 +4,9 @@ import { UserService } from 'src/user/user.service';
 import { LoginCredentialsDto } from './dto/login-credentials.dto';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { SignUpDto } from './dto/sign-up.dto';
+import { Role } from 'src/shared/Enums/role.enum';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -53,5 +56,8 @@ export class AuthService {
       }
       return { valid: false, expired: true, message: 'Invalid token' };
     }
+  }
+  async SignUp(signUpDto: SignUpDto){
+    return this.userService.createUser({...signUpDto, role: Role.USER} as CreateUserDto);
   }
 }
