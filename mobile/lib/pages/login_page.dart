@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/widgets/logo_widget.dart';
 import '../widgets/solaria_button.dart';
 import '../widgets/auth_bottom_sheet.dart';
 import '../theme/colors.dart';
@@ -17,7 +18,7 @@ class LoginPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
                             Image.asset(
-                'assets/food_welcome_illustration.png',
+                'assets/welcome_illustration.png',
                 height: 250,
               ),
               const SizedBox(height: 50),
@@ -35,7 +36,7 @@ class LoginPage extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  "Before Enjoying Foodmedia Services\nPlease Register First",
+                  "Before Starting your sustainability journey \nPlease Register First",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -43,10 +44,11 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 40),
 
               // Create Account Button (Primary)
               SolariaButton(
+                color: SolariaColors.azur,
                 text: "Create Account",
                 // Opens the bottom sheet with the Sign Up tab selected
                 onPressed: () => showAuthBottomSheet(context, initialTab: AuthTab.signup),
@@ -55,17 +57,17 @@ class LoginPage extends StatelessWidget {
               // Login Button (Secondary)
               SolariaButton(
                 text: "Login",
-                color: Colors.transparent, // Make it a text-like button
+                color: SolariaColors.green, // Make it a text-like button
                 margin: const EdgeInsets.only(top: 10),
                 // Opens the bottom sheet with the Login tab selected
                 onPressed: () => showAuthBottomSheet(context, initialTab: AuthTab.login),
               ),
               
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Terms & Conditions Text
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
@@ -93,6 +95,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
+              LogoWidget(),
             ],
           ),
         ),
