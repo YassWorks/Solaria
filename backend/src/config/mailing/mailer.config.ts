@@ -16,7 +16,7 @@ export const mailerConfig: MailerOptions = {
     debug: true,
   },
   defaults: {
-    from: '"ValBio Déchets Composite Contact" <no-reply@valbio.com>',
+    from: '"Solaria Contact" <no-reply@valbio.com>',
   },
   preview: false,
   template: {
