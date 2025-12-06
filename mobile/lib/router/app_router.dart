@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/pages/wallet_update_form.dart';
+import 'package:mobile/widgets/project_detail_page.dart';
 import '../pages/login_page.dart';
 import '../pages/HomePage.dart';
 import '../services/local_storage.dart';
@@ -26,5 +27,12 @@ final appRouter = GoRouter(
         return const WalletUpdateForm();
       },
     ),
+    GoRoute(
+      path: '/projects/:projectId',
+      builder: (BuildContext context, GoRouterState state) {
+        final projectId = int.parse(state.pathParameters['projectId']!);
+        return ProjectDetailPage(projectId: projectId);
+      },
+    )
   ],
 );
