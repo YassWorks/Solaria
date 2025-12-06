@@ -100,6 +100,7 @@ export class BlockchainService implements OnModuleInit {
   private readonly logger = new Logger(BlockchainService.name);
   private provider: ethers.JsonRpcProvider;
   private contract: ethers.Contract;
+  private contractAddress: string;
   private adminWallet: ethers.Wallet;
   private oracleWallet: ethers.Wallet | null = null;
 
@@ -108,15 +109,15 @@ export class BlockchainService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     try {
       const rpcUrl = this.configService.get<string>('DIONE_RPC_URL');
-      const contractAddress =
-        this.configService.get<string>('CONTRACT_ADDRESS');
+      this.contractAddress =
+        this.configService.get<string>('CONTRACT_ADDRESS')!;
       const adminKey = this.configService.get<string>('PRIVATE_KEY');
       const oracleKey = this.configService.get<string>('ORACLE_PRIVATE_KEY');
 
-      if (!rpcUrl || !contractAddress || !adminKey) {
+      if (!rpcUrl || !this.contractAddress || !adminKey) {
         const missing: string[] = [];
         if (!rpcUrl) missing.push('DIONE_RPC_URL');
-        if (!contractAddress) missing.push('CONTRACT_ADDRESS');
+        if (!this.contractAddress) missing.push('CONTRACT_ADDRESS');
         if (!adminKey) missing.push('PRIVATE_KEY');
 
         throw new Error(
@@ -147,7 +148,7 @@ export class BlockchainService implements OnModuleInit {
       }
 
       this.contract = new ethers.Contract(
-        contractAddress,
+        this.contractAddress,
         EnergyTokenABI.abi,
         this.adminWallet,
       );
@@ -157,6 +158,7 @@ export class BlockchainService implements OnModuleInit {
       this.logger.log(
         `✅ Connected to network: ${network.name} (Chain ID: ${network.chainId})`,
       );
+      this.logger.log(`✅ Contract address: ${this.contractAddress}`);
 
       const balance = await this.provider.getBalance(this.adminWallet.address);
       this.logger.log(
@@ -510,6 +512,29 @@ export class BlockchainService implements OnModuleInit {
 
   getContract(): ethers.Contract {
     return this.contract;
+  }
+
+  /**
+   * Get contract instance with custom signer (for user transactions)
+   */
+  getContractWithSigner(signer: ethers.Wallet): ethers.Contract {
+    return new ethers.Contract(
+      this.contractAddress,
+      EnergyTokenABI.abi,
+      signer,
+    );
+  }
+
+  /**
+   * Get user's DIONE balance
+   */
+  async getBalance(address: string): Promise<bigint> {
+    try {
+      return await this.provider.getBalance(address);
+    } catch (error) {
+      this.logger.error(`Failed to get balance for ${address}`, error);
+      throw error;
+    }
   }
 
   /**

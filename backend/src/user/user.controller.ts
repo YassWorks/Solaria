@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Patch, Body, Param, Delete, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, Query, UseGuards, UseInterceptors, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateWalletDto, VerifyPasswordDto } from './dto/create-wallet.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { User } from './schemas/user.schema';
 import { PaginationQueryDto } from 'src/config/pagination/dto/pagination-query.dto';
@@ -10,6 +11,14 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { Role } from 'src/shared/Enums/role.enum';
 import { createFileUploadInterceptor } from 'src/shared/interceptors/file-upload.interceptor';
+import type { Request } from 'express';
+
+interface AuthRequest extends Request {
+  user: {
+    userId: string;
+    [key: string]: any;
+  };
+}
 
 @ApiTags('Users')
 @Controller('users')
@@ -68,6 +77,34 @@ export class UserController {
   @ApiOperation({ summary: 'Soft delete a user' })
   async softDelete(@Param('id') id: string) {
     return this.userService.softDelete(id);
-}
+  }
 
+  @Post('wallet/create')
+  @ApiOperation({ 
+    summary: 'Create a new wallet for the authenticated user',
+    description: 'Creates a new blockchain wallet. Private key is encrypted with user password and stored securely.'
+  })
+  @ApiResponse({ status: 201, description: 'Wallet created successfully' })
+  @ApiResponse({ status: 400, description: 'User already has a wallet' })
+  async createWallet(@Req() req: AuthRequest, @Body() dto: CreateWalletDto) {
+    const userId = req.user['userId'];
+    return this.userService.createWallet(userId, dto.password);
+  }
+
+  @Get('wallet/info')
+  @ApiOperation({ summary: 'Get wallet information for authenticated user' })
+  @ApiResponse({ status: 200, description: 'Wallet info retrieved' })
+  async getWalletInfo(@Req() req: AuthRequest) {
+    const userId = req.user['userId'];
+    return this.userService.getWalletInfo(userId);
+  }
+
+  @Post('wallet/verify')
+  @ApiOperation({ summary: 'Verify wallet password' })
+  @ApiResponse({ status: 200, description: 'Password verification result' })
+  async verifyWalletPassword(@Req() req: AuthRequest, @Body() dto: VerifyPasswordDto) {
+    const userId = req.user['userId'];
+    const isValid = await this.userService.verifyWalletPassword(userId, dto.password);
+    return { valid: isValid };
+  }
 }

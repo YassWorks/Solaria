@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -8,11 +8,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { paginate } from 'src/config/pagination/pagination.util';
 import { PaginationQuery } from 'src/config/pagination/pagination.interface';
 import { encrypt, decrypt } from 'src/shared/utils/encryption';
+import { WalletService } from '../shared/services/wallet.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
+    private walletService: WalletService,
   ) {}
 
   
@@ -76,5 +78,60 @@ export class UserService {
     );
     if (!deleted) throw new NotFoundException(`User with id ${id} not found or already deleted`);
     return deleted;
+  }
+
+  /**
+   * Create a new wallet for user
+   */
+  async createWallet(userId: string, password: string): Promise<{
+    walletAddress: string;
+    message: string;
+  }> {
+    const user = await this.findOneById(userId);
+
+    if (user.walletAddress && user.encryptedWallet) {
+      throw new BadRequestException('User already has a wallet');
+    }
+
+    // Create wallet using WalletService
+    const { walletAddress, encryptedPrivateKey } = await this.walletService.createWallet(password);
+
+    // Store encrypted wallet
+    user.walletAddress = walletAddress;
+    user.encryptedWallet = encryptedPrivateKey;
+    await user.save();
+
+    return {
+      walletAddress,
+      message: 'Wallet created successfully. Keep your password safe!',
+    };
+  }
+
+  /**
+   * Verify wallet password
+   */
+  async verifyWalletPassword(userId: string, password: string): Promise<boolean> {
+    const user = await this.findOneById(userId);
+
+    if (!user.encryptedWallet) {
+      throw new BadRequestException('User does not have a wallet');
+    }
+
+    return this.walletService.verifyPassword(user.encryptedWallet, password);
+  }
+
+  /**
+   * Get wallet info (address only, never expose private key)
+   */
+  async getWalletInfo(userId: string): Promise<{
+    walletAddress: string | null;
+    hasWallet: boolean;
+  }> {
+    const user = await this.findOneById(userId);
+
+    return {
+      walletAddress: user.walletAddress || null,
+      hasWallet: !!(user.walletAddress && user.encryptedWallet),
+    };
   }
 }

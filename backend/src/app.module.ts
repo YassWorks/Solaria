@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { ProjectsModule } from './projects/projects.module';
 import { InvestorsModule } from './investors/investors.module';
+import { TransactionsModule } from './transactions/transactions.module';
 import { ProductionController } from './production/production.controller';
 
 @Module({
@@ -25,6 +26,7 @@ import { ProductionController } from './production/production.controller';
     BlockchainModule,
     ProjectsModule,
     InvestorsModule,
+    TransactionsModule,
   ],
   controllers: [AppController, ProductionController],
   providers: [AppService],
