@@ -23,6 +23,7 @@ import {
   PurchaseSharesDto,
   EstimatePurchaseDto,
 } from './dto/purchase-shares.dto';
+import { CurrentUser } from 'src/shared/decorators/user.decorator';
 import type { Request } from 'express';
 
 interface AuthRequest extends Request {
@@ -35,7 +36,7 @@ interface AuthRequest extends Request {
 @ApiTags('Transactions')
 @Controller('transactions')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
@@ -46,10 +47,10 @@ export class TransactionsController {
     description: 'Purchase estimate with all fees',
   })
   async estimatePurchase(
-    @Req() req: AuthRequest,
+    @CurrentUser() user: any,
     @Body() dto: EstimatePurchaseDto,
   ) {
-    const userId = req.user['userId'];
+    const userId = user._id.toString();
     return this.transactionsService.estimatePurchase(
       userId,
       dto.projectId,
@@ -73,10 +74,11 @@ export class TransactionsController {
   })
   @ApiResponse({ status: 401, description: 'Invalid password' })
   async purchaseShares(
+    @CurrentUser() user: any,
     @Req() req: AuthRequest,
     @Body() dto: PurchaseSharesDto,
   ) {
-    const userId = req.user['userId'];
+    const userId = user._id.toString();
     const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
@@ -97,11 +99,11 @@ export class TransactionsController {
     description: 'Transaction history retrieved',
   })
   async getMyTransactions(
-    @Req() req: AuthRequest,
+    @CurrentUser() user: any,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
     @Query('skip', new ParseIntPipe({ optional: true })) skip?: number,
   ) {
-    const userId = req.user['userId'];
+    const userId = user._id.toString();
     return this.transactionsService.getUserTransactions(
       userId,
       limit || 50,
@@ -114,8 +116,8 @@ export class TransactionsController {
   @ApiParam({ name: 'id', description: 'Transaction ID' })
   @ApiResponse({ status: 200, description: 'Transaction details' })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
-  async getTransaction(@Req() req: AuthRequest, @Param('id') id: string) {
-    const userId = req.user['userId'];
+  async getTransaction(@CurrentUser() user: any, @Param('id') id: string) {
+    const userId = user._id.toString();
     return this.transactionsService.getTransaction(userId, id);
   }
 

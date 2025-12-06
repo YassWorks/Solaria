@@ -29,14 +29,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { Role } from 'src/shared/Enums/role.enum';
 import { createFileUploadInterceptor } from 'src/shared/interceptors/file-upload.interceptor';
-import type { Request } from 'express';
-
-interface AuthRequest extends Request {
-  user: {
-    userId: string;
-    [key: string]: any;
-  };
-}
+import { CurrentUser } from 'src/shared/decorators/user.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -109,16 +102,16 @@ export class UserController {
   })
   @ApiResponse({ status: 201, description: 'Wallet created successfully' })
   @ApiResponse({ status: 400, description: 'User already has a wallet' })
-  async createWallet(@Req() req: AuthRequest, @Body() dto: CreateWalletDto) {
-    const userId = req.user['userId'];
+  async createWallet(@CurrentUser() user:any, @Body() dto: CreateWalletDto) {
+    const userId = user._id.toString();
     return this.userService.createWallet(userId, dto.password);
   }
 
   @Get('wallet/info')
   @ApiOperation({ summary: 'Get wallet information for authenticated user' })
   @ApiResponse({ status: 200, description: 'Wallet info retrieved' })
-  async getWalletInfo(@Req() req: AuthRequest) {
-    const userId = req.user['userId'];
+  async getWalletInfo(@CurrentUser() user:any) {
+    const userId = user._id.toString();
     return this.userService.getWalletInfo(userId);
   }
 
@@ -126,10 +119,10 @@ export class UserController {
   @ApiOperation({ summary: 'Verify wallet password' })
   @ApiResponse({ status: 200, description: 'Password verification result' })
   async verifyWalletPassword(
-    @Req() req: AuthRequest,
+    @CurrentUser() user:any,
     @Body() dto: VerifyPasswordDto,
   ) {
-    const userId = req.user['userId'];
+    const userId = user._id.toString();
     const isValid = await this.userService.verifyWalletPassword(
       userId,
       dto.password,
