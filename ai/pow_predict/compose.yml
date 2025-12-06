@@ -1,0 +1,7 @@
+services:
+  pp:
+    container_name: pp-ai
+    build:
+      context: .
+    ports:
+      - 8001:8001
