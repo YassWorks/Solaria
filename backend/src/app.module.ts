@@ -8,9 +8,9 @@ import { UserModule } from './user/user.module';
 import { DatabaseModule } from './config/database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
-import { ProjectsController } from './projects/projects.controller';
+import { ProjectsModule } from './projects/projects.module';
+import { InvestorsModule } from './investors/investors.module';
 import { ProductionController } from './production/production.controller';
-import { InvestorsController } from './investors/investors.controller';
 
 @Module({
   imports: [
@@ -23,13 +23,10 @@ import { InvestorsController } from './investors/investors.controller';
     UserModule,
     AuthModule,
     BlockchainModule,
+    ProjectsModule,
+    InvestorsModule,
   ],
-  controllers: [
-    AppController,
-    ProjectsController,
-    InvestorsController,
-    ProductionController,
-  ],
+  controllers: [AppController, ProductionController],
   providers: [AppService],
 })
 export class AppModule {}
