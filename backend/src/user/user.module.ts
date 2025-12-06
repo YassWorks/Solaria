@@ -11,7 +11,7 @@ import { WalletService } from '../shared/services/wallet.service';
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: Admin.name, schema: AdminSchema }
+      { name: Admin.name, schema: AdminSchema },
     ]),
   ],
   providers: [UserService, AdminSeeder, WalletService],

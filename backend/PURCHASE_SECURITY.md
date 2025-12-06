@@ -9,6 +9,7 @@ This system implements secure blockchain wallet management and share purchasing 
 ### 1. Wallet Security (`WalletService`)
 
 **Encryption:** AES-256-GCM
+
 - **Algorithm:** Industry-standard authenticated encryption
 - **Key Derivation:** PBKDF2 with 100,000 iterations
 - **IV:** Unique 16-byte initialization vector per encryption
@@ -16,6 +17,7 @@ This system implements secure blockchain wallet management and share purchasing 
 - **Master Key:** 256-bit key from environment variable
 
 **Security Features:**
+
 - Private keys NEVER stored in plaintext
 - User password required for decryption
 - Private keys cleared from memory immediately after use
@@ -49,6 +51,7 @@ This system implements secure blockchain wallet management and share purchasing 
 ### 3. Transaction Tracking
 
 **Database Schema:**
+
 - Transaction ID (MongoDB ObjectId)
 - User ID and wallet address
 - Transaction type (PURCHASE, CLAIM_CREDITS, TRANSFER)
@@ -61,6 +64,7 @@ This system implements secure blockchain wallet management and share purchasing 
 - Error messages if failed
 
 **Status Flow:**
+
 - PENDING → Transaction created, awaiting blockchain submission
 - CONFIRMING → Submitted to blockchain, waiting for confirmations
 - CONFIRMED → 3+ confirmations received
@@ -71,7 +75,9 @@ This system implements secure blockchain wallet management and share purchasing 
 ### Wallet Management
 
 #### POST /users/wallet/create
+
 Create a new wallet for authenticated user
+
 ```json
 {
   "password": "SecurePassword123!"
@@ -79,6 +85,7 @@ Create a new wallet for authenticated user
 ```
 
 **Response:**
+
 ```json
 {
   "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
@@ -87,9 +94,11 @@ Create a new wallet for authenticated user
 ```
 
 #### GET /users/wallet/info
+
 Get wallet information (address only, never private key)
 
 **Response:**
+
 ```json
 {
   "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
@@ -98,6 +107,7 @@ Get wallet information (address only, never private key)
 ```
 
 #### POST /users/wallet/verify
+
 Verify wallet password before purchase
 
 ```json
@@ -107,6 +117,7 @@ Verify wallet password before purchase
 ```
 
 **Response:**
+
 ```json
 {
   "valid": true
@@ -116,6 +127,7 @@ Verify wallet password before purchase
 ### Transactions
 
 #### POST /transactions/estimate
+
 Get cost estimate before purchase
 
 ```json
@@ -126,6 +138,7 @@ Get cost estimate before purchase
 ```
 
 **Response:**
+
 ```json
 {
   "projectId": 1,
@@ -149,6 +162,7 @@ Get cost estimate before purchase
 ```
 
 #### POST /transactions/purchase
+
 Execute share purchase
 
 ```json
@@ -161,6 +175,7 @@ Execute share purchase
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -176,9 +191,11 @@ Execute share purchase
 ```
 
 #### GET /transactions/:id
+
 Get transaction status
 
 **Response:**
+
 ```json
 {
   "_id": "507f1f77bcf86cd799439011",
@@ -204,13 +221,16 @@ Get transaction status
 ```
 
 #### GET /transactions/my-transactions
+
 Get user transaction history with pagination
 
 **Query Params:**
+
 - `limit`: Number of transactions to return (default: 50)
 - `skip`: Number of transactions to skip (default: 0)
 
 **Response:**
+
 ```json
 {
   "transactions": [...],
@@ -219,20 +239,25 @@ Get user transaction history with pagination
 ```
 
 #### GET /transactions/project/:projectId
+
 Get all purchases for a specific project
 
 **Query Params:**
+
 - `limit`: Number of transactions (default: 50)
 
 ## Security Best Practices
 
 ### Development
+
 1. Generate secure master key:
+
    ```bash
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
 2. Add to `.env`:
+
    ```
    WALLET_MASTER_KEY=your_64_character_hex_key
    ```
@@ -242,12 +267,14 @@ Get all purchases for a specific project
 ### Production
 
 #### 1. Secret Management
+
 - Use AWS Secrets Manager, Azure Key Vault, or HashiCorp Vault
 - Rotate master key annually with migration strategy
 - Use different keys for dev/staging/prod
 - Implement key versioning for zero-downtime rotation
 
 #### 2. Rate Limiting
+
 ```typescript
 // Implement with @nestjs/throttler
 @Throttle(5, 60) // 5 purchases per minute
@@ -255,6 +282,7 @@ async purchaseShares() { ... }
 ```
 
 #### 3. Two-Factor Authentication
+
 ```typescript
 // Verify 2FA before transaction
 if (user.twoFactorEnabled) {
@@ -263,12 +291,14 @@ if (user.twoFactorEnabled) {
 ```
 
 #### 4. Audit Logging
+
 - Log all wallet access attempts
 - Log all transaction attempts (success and failure)
 - Monitor for suspicious patterns
 - Alert on multiple failed password attempts
 
 #### 5. Monitoring
+
 - Transaction success/failure rates
 - Average confirmation time
 - Failed password attempts
@@ -276,6 +306,7 @@ if (user.twoFactorEnabled) {
 - Gas price alerts
 
 #### 6. Backup & Recovery
+
 - Document wallet recovery process
 - Test recovery procedures regularly
 - Maintain encrypted backups of master key
@@ -284,10 +315,11 @@ if (user.twoFactorEnabled) {
 ## Smart Contract Integration
 
 ### Purchase Function
+
 ```solidity
-function purchaseShares(uint256 projectId, uint256 shares) 
-    external 
-    payable 
+function purchaseShares(uint256 projectId, uint256 shares)
+    external
+    payable
     nonReentrant
     whenNotPaused
 {
@@ -300,6 +332,7 @@ function purchaseShares(uint256 projectId, uint256 shares)
 ```
 
 ### Gas Optimization
+
 - Conservative gas limit: 300,000 units
 - Typical usage: ~180,000 units
 - Current gas price: Dynamic from network
@@ -308,23 +341,25 @@ function purchaseShares(uint256 projectId, uint256 shares)
 
 ### Common Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Invalid password | Wrong wallet password | Re-enter correct password |
-| Insufficient balance | Not enough DIONE | Fund wallet first |
-| Exceeds available shares | Project sold out | Choose fewer shares |
-| Transaction reverted | Smart contract validation failed | Check project status |
-| Confirmation timeout | Network congestion | Transaction still pending, wait |
+| Error                    | Cause                            | Solution                        |
+| ------------------------ | -------------------------------- | ------------------------------- |
+| Invalid password         | Wrong wallet password            | Re-enter correct password       |
+| Insufficient balance     | Not enough DIONE                 | Fund wallet first               |
+| Exceeds available shares | Project sold out                 | Choose fewer shares             |
+| Transaction reverted     | Smart contract validation failed | Check project status            |
+| Confirmation timeout     | Network congestion               | Transaction still pending, wait |
 
 ### Recovery Procedures
 
 **Lost Password:**
+
 - Private key is encrypted with user password
 - If password lost, wallet is UNRECOVERABLE
 - Users must backup their passwords securely
 - Consider implementing password reset with security questions (enterprise only)
 
 **Failed Transaction:**
+
 - PENDING status: Transaction not yet submitted
 - CONFIRMING status: Wait for blockchain confirmations
 - FAILED status: Funds automatically refunded by smart contract
@@ -333,16 +368,19 @@ function purchaseShares(uint256 projectId, uint256 shares)
 ## Testing
 
 ### Unit Tests
+
 ```bash
 npm run test
 ```
 
 ### Integration Tests
+
 ```bash
 npm run test:e2e
 ```
 
 ### Manual Testing Flow
+
 1. Create wallet: POST /users/wallet/create
 2. Fund wallet with testnet DIONE
 3. Get estimate: POST /transactions/estimate
@@ -354,6 +392,7 @@ npm run test:e2e
 ## Monitoring & Alerts
 
 ### Key Metrics
+
 - Purchase success rate (target: >99%)
 - Average confirmation time (target: <3 minutes)
 - Failed password attempts per user (alert: >3 in 10 minutes)
@@ -361,6 +400,7 @@ npm run test:e2e
 - Transaction fee costs
 
 ### Alert Conditions
+
 - Multiple purchase failures
 - Unusual transaction patterns
 - High gas prices
@@ -370,12 +410,14 @@ npm run test:e2e
 ## Compliance
 
 ### Data Protection
+
 - Private keys encrypted at rest (AES-256-GCM)
 - Private keys never in logs
 - Password never stored (only used for encryption/decryption)
 - GDPR compliant (right to deletion, encrypted storage)
 
 ### Financial Regulations
+
 - KYC/AML: Implement user verification before wallet creation
 - Transaction limits: Implement daily/monthly limits
 - Reporting: Log all transactions for regulatory reporting

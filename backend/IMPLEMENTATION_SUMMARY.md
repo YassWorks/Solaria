@@ -11,6 +11,7 @@ A **production-grade secure share purchase system** that allows users to buy sol
 ## 🔐 Security Architecture
 
 ### 1. **Wallet Encryption (WalletService)**
+
 - **Algorithm:** AES-256-GCM (authenticated encryption)
 - **Key Derivation:** PBKDF2 with 100,000 iterations
 - **Master Key:** 256-bit from environment variable
@@ -19,6 +20,7 @@ A **production-grade secure share purchase system** that allows users to buy sol
 - **Memory Safety:** Private keys cleared immediately after use
 
 **Flow:**
+
 ```
 User Password + Master Key → PBKDF2 → Encryption Key
 Private Key + Encryption Key → AES-256-GCM → Encrypted Blob
@@ -26,6 +28,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ```
 
 ### 2. **Purchase Transaction Flow**
+
 ```
 1. User creates wallet with password
    ↓
@@ -53,6 +56,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ## 📁 Files Created
 
 ### Core Services
+
 1. **`src/shared/services/wallet.service.ts`** (240 lines)
    - Wallet creation and encryption
    - Private key encryption/decryption
@@ -66,6 +70,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
    - Portfolio queries
 
 ### Controllers
+
 3. **`src/transactions/transactions.controller.ts`** (120 lines)
    - POST /transactions/estimate - Cost estimation
    - POST /transactions/purchase - Execute purchase
@@ -79,6 +84,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
    - POST /users/wallet/verify - Verify password
 
 ### Data Models
+
 5. **`src/transactions/schemas/transaction.schema.ts`** (75 lines)
    - Transaction tracking with full audit trail
    - Status: PENDING → CONFIRMING → CONFIRMED/FAILED
@@ -90,6 +96,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
    - 2FA support (ready for future)
 
 ### Modules
+
 7. **`src/transactions/transactions.module.ts`** (30 lines)
    - Module configuration
    - Dependencies: BlockchainModule, WalletService
@@ -105,6 +112,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
     - Integrated TransactionsModule
 
 ### Documentation
+
 11. **`backend/PURCHASE_SECURITY.md`** (500+ lines)
     - Complete security documentation
     - API reference
@@ -122,6 +130,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
     - Security notes and checklist
 
 ### Enhancements to Existing Files
+
 14. **`src/blockchain/blockchain.service.ts`**
     - Added `getContractWithSigner()` - Custom wallet support
     - Added `getBalance()` - Check user balance
@@ -136,6 +145,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ## 🎯 Key Features
 
 ### ✅ Security
+
 - ✅ AES-256-GCM encryption for private keys
 - ✅ PBKDF2 key derivation (100,000 iterations)
 - ✅ Password required for every transaction
@@ -145,6 +155,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 - ✅ Master key from environment (not in code)
 
 ### ✅ Transaction Management
+
 - ✅ Cost estimation before purchase
 - ✅ Platform fee calculation (2.5%)
 - ✅ Gas fee estimation
@@ -154,6 +165,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 - ✅ Error handling and recovery
 
 ### ✅ User Experience
+
 - ✅ Simple wallet creation
 - ✅ Clear cost breakdown
 - ✅ Real-time transaction status
@@ -162,6 +174,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 - ✅ Swagger API documentation
 
 ### ✅ Smart Contract Integration
+
 - ✅ Direct blockchain purchases
 - ✅ ERC1155 token minting
 - ✅ Project wallet payments
@@ -173,11 +186,13 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ## 🔌 API Endpoints
 
 ### Wallet Management (3 endpoints)
+
 - **POST /users/wallet/create** - Create encrypted wallet
 - **GET /users/wallet/info** - Get wallet address
 - **POST /users/wallet/verify** - Verify password
 
 ### Transactions (5 endpoints)
+
 - **POST /transactions/estimate** - Estimate purchase cost
 - **POST /transactions/purchase** - Execute purchase (requires password)
 - **GET /transactions/:id** - Get transaction details
@@ -185,6 +200,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 - **GET /transactions/project/:projectId** - Project transactions
 
 ### Enhanced Blockchain (existing)
+
 - **GET /blockchain/balance/:address** - Check balance
 - All existing blockchain endpoints remain functional
 
@@ -193,33 +209,35 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ## 📊 Database Schema
 
 ### Transaction Collection
+
 ```typescript
 {
-  _id: ObjectId
-  userId: string
-  walletAddress: string
-  type: 'PURCHASE' | 'CLAIM_CREDITS' | 'TRANSFER'
-  status: 'PENDING' | 'CONFIRMING' | 'CONFIRMED' | 'FAILED'
-  projectId: number
-  projectName: string
-  shares: number
-  amountDIONE: string
-  amountUSD: number
-  pricePerShare: string
-  platformFee: string
-  gasFee: string
-  transactionHash: string
-  blockNumber: number
-  confirmations: number
-  ipAddress: string
-  userAgent: string
-  metadata: object
-  createdAt: Date
-  updatedAt: Date
+  _id: ObjectId;
+  userId: string;
+  walletAddress: string;
+  type: 'PURCHASE' | 'CLAIM_CREDITS' | 'TRANSFER';
+  status: 'PENDING' | 'CONFIRMING' | 'CONFIRMED' | 'FAILED';
+  projectId: number;
+  projectName: string;
+  shares: number;
+  amountDIONE: string;
+  amountUSD: number;
+  pricePerShare: string;
+  platformFee: string;
+  gasFee: string;
+  transactionHash: string;
+  blockNumber: number;
+  confirmations: number;
+  ipAddress: string;
+  userAgent: string;
+  metadata: object;
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 
 ### User Schema (Enhanced)
+
 ```typescript
 {
   email: string
@@ -234,6 +252,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ## 🚀 Deployment Checklist
 
 ### Development
+
 - [x] Code implementation complete
 - [x] TypeScript compilation successful
 - [x] Security documentation written
@@ -244,6 +263,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 - [ ] Test all endpoints
 
 ### Production
+
 - [ ] Store secrets in vault (AWS Secrets Manager)
 - [ ] Enable 2FA for high-value transactions
 - [ ] Implement rate limiting (5 purchases/minute)
@@ -260,6 +280,7 @@ Storage: salt:iv:authTag:encryptedPrivateKey
 ## 💡 Usage Example
 
 ### 1. Create Wallet
+
 ```bash
 POST /users/wallet/create
 {
@@ -268,6 +289,7 @@ POST /users/wallet/create
 ```
 
 ### 2. Estimate Purchase
+
 ```bash
 POST /transactions/estimate
 {
@@ -277,6 +299,7 @@ POST /transactions/estimate
 ```
 
 ### 3. Execute Purchase
+
 ```bash
 POST /transactions/purchase
 {
@@ -287,6 +310,7 @@ POST /transactions/purchase
 ```
 
 ### 4. Monitor Status
+
 ```bash
 GET /transactions/507f1f77bcf86cd799439011
 ```
@@ -296,23 +320,26 @@ GET /transactions/507f1f77bcf86cd799439011
 ## 🔍 Security Verification
 
 ### ✅ Encryption Verification
+
 ```javascript
 // MongoDB: Check encrypted wallet
-db.users.findOne({ email: "user@example.com" }, { encryptedWallet: 1 })
+db.users.findOne({ email: 'user@example.com' }, { encryptedWallet: 1 });
 
 // Should see: "salt:iv:authTag:encrypted" (long hex string)
 // Should NOT see: "0x" prefix (that would be plaintext!)
 ```
 
 ### ✅ Transaction Audit Trail
+
 ```javascript
 // MongoDB: Check transaction logging
-db.transactions.find({ userId: "..." }).sort({ createdAt: -1 })
+db.transactions.find({ userId: '...' }).sort({ createdAt: -1 });
 
 // Should see: ipAddress, userAgent, full transaction details
 ```
 
 ### ✅ Password Protection
+
 ```bash
 # Try purchase without password → 400 Bad Request
 # Try wrong password → 401 Unauthorized
@@ -334,6 +361,7 @@ db.transactions.find({ userId: "..." }).sort({ createdAt: -1 })
 ## 🎓 What Makes This Secure?
 
 ### 1. **Defense in Depth**
+
 - Master key in environment (not in code)
 - User password required (not stored)
 - Private keys encrypted at rest
@@ -341,12 +369,14 @@ db.transactions.find({ userId: "..." }).sort({ createdAt: -1 })
 - Audit trail for all attempts
 
 ### 2. **Industry Standards**
+
 - AES-256-GCM (NSA Suite B)
 - PBKDF2 100,000 iterations (OWASP recommendation)
 - Unique IV per encryption
 - Authentication tags (tamper detection)
 
 ### 3. **Operational Security**
+
 - No private keys in logs
 - No passwords in database
 - IP address logging
@@ -354,6 +384,7 @@ db.transactions.find({ userId: "..." }).sort({ createdAt: -1 })
 - Error messages don't leak info
 
 ### 4. **Blockchain Security**
+
 - Smart contract validation
 - Gas price verification
 - Balance checks before sending
@@ -365,6 +396,7 @@ db.transactions.find({ userId: "..." }).sort({ createdAt: -1 })
 ## 🛠️ Maintenance
 
 ### Key Rotation (Annually)
+
 1. Generate new WALLET_MASTER_KEY
 2. Decrypt all wallets with old key
 3. Re-encrypt with new key
@@ -372,6 +404,7 @@ db.transactions.find({ userId: "..." }).sort({ createdAt: -1 })
 5. Zero-downtime migration
 
 ### Monitoring Alerts
+
 - Failed password attempts (>3 in 10 min)
 - Transaction failure rate (>5%)
 - High gas prices (>100 Gwei)

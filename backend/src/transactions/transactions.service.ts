@@ -296,7 +296,7 @@ export class TransactionsService {
   ): Promise<void> {
     try {
       const provider = this.blockchainService.getProvider();
-      
+
       // Wait for 3 confirmations
       this.logger.log(`Waiting for confirmation: ${txHash}`);
       const receipt = await provider.waitForTransaction(txHash, 3);
@@ -320,20 +320,20 @@ export class TransactionsService {
         transaction.gasFee = ethers.formatEther(
           receipt.gasUsed * receipt.gasPrice,
         );
-        
+
         this.logger.log(`Transaction confirmed: ${txHash}`);
       } else {
         // Failed
         transaction.status = TransactionStatus.FAILED;
         transaction.errorMessage = 'Transaction reverted on blockchain';
-        
+
         this.logger.error(`Transaction reverted: ${txHash}`);
       }
 
       await transaction.save();
     } catch (error) {
       this.logger.error(`Failed to confirm transaction ${txHash}`, error);
-      
+
       // Mark as failed
       await this.transactionModel.findByIdAndUpdate(transactionId, {
         status: TransactionStatus.FAILED,
@@ -345,7 +345,10 @@ export class TransactionsService {
   /**
    * Get transaction by ID
    */
-  async getTransaction(userId: string, transactionId: string): Promise<Transaction> {
+  async getTransaction(
+    userId: string,
+    transactionId: string,
+  ): Promise<Transaction> {
     const transaction = await this.transactionModel.findOne({
       _id: transactionId,
       userId,

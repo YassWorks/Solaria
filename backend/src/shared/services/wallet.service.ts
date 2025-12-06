@@ -10,7 +10,7 @@ import { ethers } from 'ethers';
 
 /**
  * WalletService - Handles secure encryption/decryption of private keys
- * 
+ *
  * Security Features:
  * 1. AES-256-GCM encryption for private keys
  * 2. Unique IV (Initialization Vector) per encryption
@@ -221,10 +221,10 @@ export class WalletService {
         userPassword,
       );
       const wallet = new ethers.Wallet(privateKey, provider);
-      
+
       // Clear private key after wallet creation
       this.clearSensitiveData(privateKey);
-      
+
       return wallet;
     } catch (error) {
       this.logger.error('Failed to get wallet instance', error);
