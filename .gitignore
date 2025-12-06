@@ -3,9 +3,8 @@ __pycache__/
 
 .env
 
-*.csv
 *.log
 
-*test*
-
 **/.venv/
+
+**/logs/
