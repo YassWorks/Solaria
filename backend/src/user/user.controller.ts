@@ -10,6 +10,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { Role } from 'src/shared/Enums/role.enum';
 import { createFileUploadInterceptor } from 'src/shared/interceptors/file-upload.interceptor';
+import { CurrentUser } from 'src/shared/decorators/user.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -18,6 +19,7 @@ import { createFileUploadInterceptor } from 'src/shared/interceptors/file-upload
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  
   @Post()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new user' })
@@ -42,6 +44,21 @@ export class UserController {
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.userService.findAll(paginationQuery);
   }
+
+  @Patch('/me/update')
+  @UseInterceptors(
+    createFileUploadInterceptor({
+      fieldName: 'photoUrl',
+      destination: 'users',
+      allowedFileTypes: /\.(jpg|jpeg|png)$/i,
+      fileSizeLimit: 1048576,
+    }),
+  )
+  @ApiOperation({ summary: 'Update current user' })
+  async updateMe(@Body() updateUserDto: UpdateUserDto, @CurrentUser() user: any) {
+    return this.userService.updateUser(user._id.toString(), updateUserDto);
+  }
+
 
   @Get(':email')
   @ApiOperation({ summary: 'Get user by email' })
@@ -68,6 +85,5 @@ export class UserController {
   @ApiOperation({ summary: 'Soft delete a user' })
   async softDelete(@Param('id') id: string) {
     return this.userService.softDelete(id);
-}
-
+  }
 }

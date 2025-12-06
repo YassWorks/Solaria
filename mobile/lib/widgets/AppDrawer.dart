@@ -21,7 +21,7 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: <Widget>[
-          // Header Section (User Info)
+          // Header Section (User Info)*
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -43,7 +43,7 @@ class AppDrawer extends StatelessWidget {
                   // User Avatar
                   const CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage('assets/user_avatar.png'), // **REPLACE with actual asset**
+                    backgroundImage: AssetImage('assets/user_avatar.png'),
                     backgroundColor: SolariaColors.azur,
                   ),
                   const SizedBox(height: 10),

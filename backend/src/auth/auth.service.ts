@@ -25,7 +25,7 @@ export class AuthService {
     if (!isMatch) throw new UnauthorizedException('Incorrect password');
 
     const payload = {
-      _id: user._id,
+      _id: user._id.toString(),
       email: user.email,
       fullname: user.fullname,
       role: user.role,

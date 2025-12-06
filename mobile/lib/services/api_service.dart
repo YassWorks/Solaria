@@ -29,4 +29,17 @@ class ApiService {
       },
     );
   }
+
+  Future<http.Response> patch(String path, Map<String, dynamic> data) async {
+    final token = await LocalStorage.getToken();
+
+    return http.patch(
+      Uri.parse("$baseUrl$path"),
+      headers: {
+        "Content-Type": "application/json",
+        if (token != null) "Authorization": "Bearer $token",
+      },
+      body: jsonEncode(data),
+    );
+  }
 }
