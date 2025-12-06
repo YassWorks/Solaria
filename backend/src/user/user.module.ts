@@ -5,15 +5,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { Admin, AdminSchema } from './schemas/admin.schema';
 import { AdminSeeder } from './seed/admin.seed';
+import { WalletService } from '../shared/services/wallet.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: Admin.name, schema: AdminSchema }
+      { name: Admin.name, schema: AdminSchema },
     ]),
   ],
-  providers: [UserService, AdminSeeder],
+  providers: [UserService, AdminSeeder, WalletService],
   controllers: [UserController],
   exports: [MongooseModule, UserService],
 })
