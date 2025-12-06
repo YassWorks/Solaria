@@ -101,7 +101,7 @@ export class BlockchainService implements OnModuleInit {
   private provider: ethers.JsonRpcProvider;
   private contract: ethers.Contract;
   private adminWallet: ethers.Wallet;
-  private oracleWallet: ethers.Wallet;
+  private oracleWallet: ethers.Wallet | null = null;
 
   constructor(private configService: ConfigService) {}
 
@@ -129,13 +129,21 @@ export class BlockchainService implements OnModuleInit {
 
       this.adminWallet = new ethers.Wallet(adminKey, this.provider);
 
-      if (oracleKey) {
+      // Oracle wallet is optional - only create if valid key is provided
+      // Filter out placeholder values
+      const isValidOracleKey =
+        oracleKey &&
+        oracleKey.length >= 64 &&
+        !oracleKey.includes('your_') &&
+        oracleKey !== 'your_oracle_private_key_here';
+
+      if (isValidOracleKey) {
         this.oracleWallet = new ethers.Wallet(oracleKey, this.provider);
+        this.logger.log('✅ Oracle wallet initialized');
       } else {
         this.logger.warn(
-          'Oracle private key not provided - oracle functions will not be available',
+          '⚠️  Oracle private key not provided - oracle features will be unavailable',
         );
-        this.oracleWallet = this.adminWallet; // Fallback to admin wallet
       }
 
       this.contract = new ethers.Contract(
@@ -388,39 +396,6 @@ export class BlockchainService implements OnModuleInit {
     }
   }
 
-  async recordProduction(
-    projectId: number,
-    kwhProduced: number,
-    dataSource: string,
-  ): Promise<TransactionResult> {
-    try {
-      this.logger.log(`Recording ${kwhProduced} kWh for project ${projectId}`);
-
-      const contractWithOracle = this.contract.connect(
-        this.oracleWallet,
-      ) as any;
-      const tx = await contractWithOracle.recordProduction(
-        projectId,
-        kwhProduced,
-        dataSource,
-      );
-
-      const receipt = await tx.wait();
-      this.logger.log(
-        `✅ Production recorded! Gas used: ${receipt.gasUsed.toString()}`,
-      );
-
-      return {
-        success: true,
-        transactionHash: receipt.hash,
-        gasUsed: receipt.gasUsed.toString(),
-      };
-    } catch (error) {
-      this.logger.error('Failed to record production', error);
-      throw error;
-    }
-  }
-
   async updateProjectStatus(
     projectId: number,
     newStatus: number,
@@ -535,5 +510,25 @@ export class BlockchainService implements OnModuleInit {
 
   getContract(): ethers.Contract {
     return this.contract;
+  }
+
+  /**
+   * Get oracle wallet for oracle service use only
+   * @throws Error if oracle wallet not configured
+   */
+  getOracleWallet(): ethers.Wallet {
+    if (!this.oracleWallet) {
+      throw new Error(
+        'Oracle wallet not configured. Set ORACLE_PRIVATE_KEY environment variable.',
+      );
+    }
+    return this.oracleWallet;
+  }
+
+  /**
+   * Check if oracle is configured and available
+   */
+  isOracleAvailable(): boolean {
+    return this.oracleWallet !== null;
   }
 }
