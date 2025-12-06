@@ -6,9 +6,9 @@ Before deploying to the real blockchain, you need:
 
 ### 1. Get Testnet DIONE Tokens
 
-- Join Dione Discord: https://discord.gg/dioneprotocol
-- Request testnet tokens in the #faucet channel
-- Your wallet address: Check your `.env` file for `PRIVATE_KEY` address
+-   Join Dione Discord: https://discord.gg/dioneprotocol
+-   Request testnet tokens in the #faucet channel
+-   Your wallet address: Check your `.env` file for `PRIVATE_KEY` address
 
 ### 2. Verify Your Configuration
 
@@ -143,9 +143,9 @@ node index.js 0xYourContractAddress 1
 
 This will:
 
-- Record hourly production data
-- Update blockchain every hour
-- Distribute energy credits to investors
+-   Record hourly production data
+-   Update blockchain every hour
+-   Distribute energy credits to investors
 
 ## 🛒 Purchase Shares (Test It!)
 
@@ -155,42 +155,42 @@ Create a test script `scripts/purchase.js`:
 const hre = require("hardhat");
 
 async function main() {
-  const contractAddress = process.env.CONTRACT_ADDRESS;
-  const energyToken = await hre.ethers.getContractAt(
-    "EnergyToken",
-    contractAddress
-  );
+    const contractAddress = process.env.CONTRACT_ADDRESS;
+    const energyToken = await hre.ethers.getContractAt(
+        "EnergyToken",
+        contractAddress
+    );
 
-  const projectId = 1;
-  const shares = 10;
-  const project = await energyToken.projects(projectId);
-  const totalCost = project.pricePerShare * BigInt(shares);
+    const projectId = 1;
+    const shares = 10;
+    const project = await energyToken.projects(projectId);
+    const totalCost = project.pricePerShare * BigInt(shares);
 
-  console.log(`Purchasing ${shares} shares...`);
-  console.log(`Total cost: ${hre.ethers.formatEther(totalCost)} DIONE`);
+    console.log(`Purchasing ${shares} shares...`);
+    console.log(`Total cost: ${hre.ethers.formatEther(totalCost)} DIONE`);
 
-  const tx = await energyToken.purchaseShares(projectId, shares, {
-    value: totalCost,
-  });
-  await tx.wait();
+    const tx = await energyToken.purchaseShares(projectId, shares, {
+        value: totalCost,
+    });
+    await tx.wait();
 
-  console.log("✅ Purchase successful!");
-  console.log(
-    `Transaction: https://testnet-explorer.dioneprotocol.com/tx/${tx.hash}`
-  );
+    console.log("✅ Purchase successful!");
+    console.log(
+        `Transaction: https://testnet-explorer.dioneprotocol.com/tx/${tx.hash}`
+    );
 
-  const balance = await energyToken.balanceOf(
-    (
-      await hre.ethers.getSigners()
-    )[0].address,
-    projectId
-  );
-  console.log(`Your balance: ${balance} shares`);
+    const balance = await energyToken.balanceOf(
+        (
+            await hre.ethers.getSigners()
+        )[0].address,
+        projectId
+    );
+    console.log(`Your balance: ${balance} shares`);
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exit(1);
+    console.error(error);
+    process.exit(1);
 });
 ```
 
@@ -212,35 +212,35 @@ After deployment, you can verify your tokens exist by:
 
 ### "Insufficient funds"
 
-- Get more testnet DIONE from the faucet
-- Check balance: `npx hardhat run scripts/check-balance.js --network dione_testnet`
+-   Get more testnet DIONE from the faucet
+-   Check balance: `npx hardhat run scripts/check-balance.js --network dione_testnet`
 
 ### "Network not found"
 
-- Check `hardhat.config.js` has `dione_testnet` network configured
-- Verify RPC URL is correct: `https://testnet-rpc.dioneprotocol.com`
+-   Check `hardhat.config.js` has `dione_testnet` network configured
+-   Verify RPC URL is correct: `https://testnet-rpc.dioneprotocol.com`
 
 ### "Contract address not found"
 
-- Make sure you deployed successfully
-- Contract address should be in deployment output
-- Update `.env` with correct `CONTRACT_ADDRESS`
+-   Make sure you deployed successfully
+-   Contract address should be in deployment output
+-   Update `.env` with correct `CONTRACT_ADDRESS`
 
 ### "Explorer shows 404"
 
-- Dione explorer might be under construction
-- Try alternative: Block scanner or direct RPC calls
-- Your tokens still exist on-chain even if explorer is down!
+-   Dione explorer might be under construction
+-   Try alternative: Block scanner or direct RPC calls
+-   Your tokens still exist on-chain even if explorer is down!
 
 ## 🎉 Success Checklist
 
-- ✅ Contract compiled successfully
-- ✅ Deployed to Dione testnet (have contract address)
-- ✅ Demo project created (Project ID: 1)
-- ✅ Can view contract on explorer (or via console)
-- ✅ Can purchase shares successfully
-- ✅ Oracle simulator recording production
-- ✅ Backend can interact with contract
+-   ✅ Contract compiled successfully
+-   ✅ Deployed to Dione testnet (have contract address)
+-   ✅ Demo project created (Project ID: 1)
+-   ✅ Can view contract on explorer (or via console)
+-   ✅ Can purchase shares successfully
+-   ✅ Oracle simulator recording production
+-   ✅ Backend can interact with contract
 
 ## 🔗 Next Steps
 
@@ -253,10 +253,10 @@ After deployment, you can verify your tokens exist by:
 
 ## 📞 Support
 
-- Dione Discord: https://discord.gg/dioneprotocol
-- Dione Docs: https://docs.dioneprotocol.com
-- Smart Contract: Check `contracts/EnergyToken.sol`
-- Backend Docs: Check `BACKEND_INTEGRATION.md`
+-   Dione Discord: https://discord.gg/dioneprotocol
+-   Dione Docs: https://docs.dioneprotocol.com
+-   Smart Contract: Check `contracts/EnergyToken.sol`
+-   Backend Docs: Check `BACKEND_INTEGRATION.md`
 
 ---
 

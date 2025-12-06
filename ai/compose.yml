@@ -1,0 +1,16 @@
+services:
+  pow_predict:
+    container_name: pp-ai
+    build:
+      context: ./pow_predict
+    ports:
+      - "8001:8001"
+
+  quality_control:
+    container_name: qc-ai
+    build:
+      context: ./quality_control
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./quality_control/.env
