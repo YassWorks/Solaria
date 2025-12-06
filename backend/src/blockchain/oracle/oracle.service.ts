@@ -1,12 +1,129 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { BlockchainService } from '../blockchain.service';
+import { ConfigService } from '@nestjs/config';
+import { BlockchainService, TransactionResult } from '../blockchain.service';
+import { ethers } from 'ethers';
 
 @Injectable()
-export class OracleService {
+export class OracleService implements OnModuleInit {
   private readonly logger = new Logger(OracleService.name);
+  private oracleWallet: ethers.Wallet | null = null;
+  private simulationMode: boolean = false;
+  private simulatedProductionData: Map<number, number[]> = new Map();
 
-  constructor(private blockchainService: BlockchainService) {}
+  constructor(
+    private blockchainService: BlockchainService,
+    private configService: ConfigService,
+  ) {}
+
+  async onModuleInit() {
+    try {
+      const oracleMode = this.configService.get<string>('ORACLE_MODE', 'real');
+
+      if (oracleMode === 'simulation') {
+        this.simulationMode = true;
+        this.logger.warn('🧪 ═══════════════════════════════════════════════');
+        this.logger.warn('🧪 ORACLE RUNNING IN SIMULATION MODE');
+        this.logger.warn('🧪 No blockchain writes - Data stored in memory');
+        this.logger.warn('🧪 Perfect for development/testing');
+        this.logger.warn('🧪 Set ORACLE_MODE=real for production');
+        this.logger.warn('🧪 ═══════════════════════════════════════════════');
+        return;
+      }
+
+      if (this.blockchainService.isOracleAvailable()) {
+        this.oracleWallet = this.blockchainService.getOracleWallet();
+        const balance = await this.blockchainService.getWalletBalance(
+          this.oracleWallet.address,
+        );
+        this.logger.log('✅ ═══════════════════════════════════════════════');
+        this.logger.log('✅ ORACLE SERVICE INITIALIZED (REAL MODE)');
+        this.logger.log(`✅ Oracle Address: ${this.oracleWallet.address}`);
+        this.logger.log(`✅ Balance: ${balance} DIONE`);
+        this.logger.log('✅ Ready to record production on blockchain');
+        this.logger.log('✅ ═══════════════════════════════════════════════');
+      } else {
+        this.logger.warn('⚠️  ═══════════════════════════════════════════════');
+        this.logger.warn('⚠️  Oracle service disabled');
+        this.logger.warn('⚠️  ORACLE_PRIVATE_KEY not configured');
+        this.logger.warn('⚠️  ');
+        this.logger.warn('⚠️  Options:');
+        this.logger.warn('⚠️  1. Set ORACLE_MODE=simulation for testing');
+        this.logger.warn('⚠️  2. Generate oracle wallet for production');
+        this.logger.warn('⚠️  ═══════════════════════════════════════════════');
+      }
+    } catch (error) {
+      this.logger.error('❌ Failed to initialize oracle service', error);
+    }
+  }
+
+  /**
+   * Record production on blockchain (oracle-only operation)
+   */
+  async recordProduction(
+    projectId: number,
+    kwhProduced: number,
+    dataSource: string,
+  ): Promise<TransactionResult> {
+    // SIMULATION MODE - Store in memory
+    if (this.simulationMode) {
+      this.logger.log(
+        `🧪 [SIMULATION] Recording ${kwhProduced} kWh for project ${projectId} (Source: ${dataSource})`,
+      );
+
+      // Store in memory for later retrieval
+      if (!this.simulatedProductionData.has(projectId)) {
+        this.simulatedProductionData.set(projectId, []);
+      }
+      this.simulatedProductionData.get(projectId)!.push(kwhProduced);
+
+      // Return simulated transaction result
+      const simulatedTxHash = `0xSIMULATED${Date.now()}${projectId}`;
+      this.logger.log(
+        `✅ [SIMULATION] Production stored in memory. Simulated Tx: ${simulatedTxHash}`,
+      );
+
+      return {
+        success: true,
+        transactionHash: simulatedTxHash,
+        gasUsed: '0',
+      };
+    }
+
+    // REAL MODE - Submit to blockchain
+    if (!this.oracleWallet) {
+      throw new Error(
+        'Oracle not configured. Set ORACLE_PRIVATE_KEY or use ORACLE_MODE=simulation',
+      );
+    }
+
+    try {
+      this.logger.log(`Recording ${kwhProduced} kWh for project ${projectId}`);
+
+      const contract = this.blockchainService.getContract();
+      const contractWithOracle = contract.connect(this.oracleWallet) as any;
+
+      const tx = await contractWithOracle.recordProduction(
+        projectId,
+        kwhProduced,
+        dataSource,
+      );
+
+      const receipt = await tx.wait();
+      this.logger.log(
+        `✅ Production recorded! Gas used: ${receipt.gasUsed.toString()}`,
+      );
+
+      return {
+        success: true,
+        transactionHash: receipt.hash,
+        gasUsed: receipt.gasUsed.toString(),
+      };
+    } catch (error) {
+      this.logger.error('Failed to record production', error);
+      throw error;
+    }
+  }
 
   /**
    * Simulate production based on time of day and energy type
@@ -85,7 +202,7 @@ export class OracleService {
           );
 
           if (production > 0) {
-            await this.blockchainService.recordProduction(
+            await this.recordProduction(
               project.id,
               production,
               'Oracle Simulator',
@@ -124,16 +241,12 @@ export class OracleService {
     projectId: number,
     kwhProduced: number,
     source: string,
-  ) {
+  ): Promise<TransactionResult> {
     try {
       this.logger.log(
         `Manual recording: ${kwhProduced} kWh for project ${projectId}`,
       );
-      return await this.blockchainService.recordProduction(
-        projectId,
-        kwhProduced,
-        source,
-      );
+      return await this.recordProduction(projectId, kwhProduced, source);
     } catch (error) {
       this.logger.error('Failed to manually record production', error);
       throw error;
@@ -162,9 +275,63 @@ export class OracleService {
    * Test the oracle by recording production once immediately
    */
   async testOracle() {
-    this.logger.log(
-      '🧪 Testing oracle - recording production for all projects...',
-    );
+    const modeLabel = this.simulationMode ? '🧪 [SIMULATION]' : '📊 [REAL]';
+    this.logger.log('═══════════════════════════════════════════════════');
+    this.logger.log(`${modeLabel} ORACLE TEST MODE - Recording NOW`);
+    this.logger.log('═══════════════════════════════════════════════════');
     await this.recordHourlyProduction();
+  }
+
+  /**
+   * Get simulated production history (simulation mode only)
+   */
+  getSimulatedProductionHistory(projectId: number): number[] {
+    if (!this.simulationMode) {
+      this.logger.warn('Not in simulation mode - no simulated data available');
+      return [];
+    }
+    return this.simulatedProductionData.get(projectId) || [];
+  }
+
+  /**
+   * Get total simulated production (simulation mode only)
+   */
+  getTotalSimulatedProduction(projectId: number): number {
+    const history = this.getSimulatedProductionHistory(projectId);
+    return history.reduce((sum, val) => sum + val, 0);
+  }
+
+  /**
+   * Check if oracle is in simulation mode
+   */
+  isSimulationMode(): boolean {
+    return this.simulationMode;
+  }
+
+  /**
+   * Get oracle status and configuration
+   */
+  async getOracleStatus() {
+    const status = {
+      mode: this.simulationMode ? 'simulation' : 'real',
+      active: this.simulationMode || this.oracleWallet !== null,
+      address: this.oracleWallet?.address || null,
+      balance: null as string | null,
+      simulatedProjects: this.simulationMode
+        ? Array.from(this.simulatedProductionData.keys())
+        : [],
+    };
+
+    if (this.oracleWallet && !this.simulationMode) {
+      try {
+        status.balance = await this.blockchainService.getWalletBalance(
+          this.oracleWallet.address,
+        );
+      } catch (error) {
+        this.logger.error('Failed to get oracle wallet balance', error);
+      }
+    }
+
+    return status;
   }
 }

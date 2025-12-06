@@ -201,7 +201,7 @@ describe('BlockchainService - Live Blockchain Tests', () => {
     });
   });
 
-  describe('Write Operations (requires valid private keys)', () => {
+  describe('Write Operations (Admin only - requires PRIVATE_KEY)', () => {
     it('should create a new test project', async () => {
       if (!process.env.PRIVATE_KEY || process.env.PRIVATE_KEY.length < 64) {
         console.log('⚠️  Skipping - Set PRIVATE_KEY env variable to test');
