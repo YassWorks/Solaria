@@ -270,6 +270,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         "${(project.projectDurationMs / (1000 * 60 * 60 * 24 * 365.25)).toStringAsFixed(1)} years",
                         Icons.timelapse_outlined,
                       ),
+                      const SizedBox(height: 30),
+                      const _MockMonthlyProductionChart(),
+                      const SizedBox(height: 30),
                     ],
                   ),
                 ),
@@ -490,6 +493,140 @@ class __PurchaseModalContentState extends State<_PurchaseModalContent> {
           const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+}
+
+class _MockMonthlyProductionChart extends StatelessWidget {
+  const _MockMonthlyProductionChart();
+
+  // Données de production mensuelle mockées (en kWh)
+  static const List<Map<String, dynamic>> monthlyData = [
+    {'month': 'Jan', 'kwh': 12000},
+    {'month': 'Fev', 'kwh': 15000},
+    {'month': 'Mar', 'kwh': 20000},
+    {'month': 'Avr', 'kwh': 25000},
+    {'month': 'Mai', 'kwh': 30000},
+    {'month': 'Juin', 'kwh': 32000},
+    {'month': 'Juil', 'kwh': 31000},
+    {'month': 'Août', 'kwh': 28000},
+    {'month': 'Sep', 'kwh': 22000},
+    {'month': 'Oct', 'kwh': 18000},
+    {'month': 'Nov', 'kwh': 13000},
+    {'month': 'Déc', 'kwh': 10000},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    // Trouver la valeur maximale pour normaliser la hauteur des barres
+    final maxKwh = monthlyData.map((data) => data['kwh'] as int).reduce((a, b) => a > b ? a : b);
+    // Calcul de la production annuelle totale (mockée)
+    final totalAnnualKwh = monthlyData.map((data) => data['kwh'] as int).fold<int>(0, (prev, kwh) => prev + kwh);
+    final numberFormatter = NumberFormat.compact(locale: 'en_US'); // Pour formater 350000 en 350K
+
+    const double maxHeight = 150.0; // Hauteur maximale augmentée
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Titre et Production Annuelle Totale
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Monthly Production",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: SolariaColors.blueDark,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: SolariaColors.azur.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Total: ${numberFormatter.format(totalAnnualKwh)} kWh',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: SolariaColors.azur,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 15),
+        
+        // Conteneur principal du graphique
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          height: maxHeight + 50, // Hauteur totale du graphique
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: monthlyData.map((data) {
+              final kwh = data['kwh'] as int;
+              // Calcul de la hauteur proportionnelle
+              final barHeight = (kwh / maxKwh) * maxHeight;
+
+              return Expanded( // Utiliser Expanded pour répartir l'espace
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Affichage de la valeur (simplifiée) au-dessus de la barre
+                      Text(
+                        '${numberFormatter.format(kwh)}',
+                        style: TextStyle(fontSize: 9, color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
+                      // La Barre du graphique avec dégradé
+                      Container(
+                        height: barHeight,
+                        width: double.infinity, // Utilise la largeur maximale dans Expanded
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+                          // Dégradé pour un meilleur effet visuel
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              SolariaColors.azur.withOpacity(0.7),
+                              SolariaColors.azur,
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      // Étiquette du mois (X-axis)
+                      Text(
+                        data['month'] as String,
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 }
