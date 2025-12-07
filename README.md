@@ -4,6 +4,8 @@
 
 # ☀️ Solaria
 
+**Backend API:** [Swagger](https://solaria-lav5.onrender.com/api) | **AI API:** [Swagger](https://solaria-a5mp.onrender.com/docs)
+
 ### Democratizing Renewable Energy Investment Through Blockchain
 
 **Tokenized renewable energy production shares with AI-powered predictions and automated credit distribution**
