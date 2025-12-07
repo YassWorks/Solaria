@@ -76,8 +76,17 @@ export class UserService {
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    let hashedPassword: string | undefined;
+    let salt: string | undefined;
+
+    if (updateUserDto.password) {
+      salt = await bcrypt.genSalt();
+      hashedPassword = await bcrypt.hash(updateUserDto.password, salt);
+    }
+
     const updatePayload: Partial<UpdateUserDto> = {
       ...updateUserDto,
+      ...(hashedPassword && { password: hashedPassword, salt }),
       ...(updateUserDto.walletAddress && {
         walletAddress: encrypt(updateUserDto.walletAddress),
       }),
@@ -92,9 +101,13 @@ export class UserService {
       { new: true, runValidators: true },
     );
 
-    if (!updated) throw new NotFoundException(`User with id ${id} not found`);
+    if (!updated) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
     return updated;
   }
+
 
   async softDelete(id: string) {
     const deleted = await this.userModel.findOneAndUpdate(

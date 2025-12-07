@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/pages/my_transactions_page.dart';
+import 'package:mobile/pages/project_transactions_page.dart';
 import 'package:mobile/pages/wallet_update_form.dart';
 import 'package:mobile/widgets/project_detail_page.dart';
 import '../pages/login_page.dart';
@@ -33,6 +35,32 @@ final appRouter = GoRouter(
         final projectId = int.parse(state.pathParameters['projectId']!);
         return ProjectDetailPage(projectId: projectId);
       },
-    )
+    ),
+    // Route for Project Detail Page
+    GoRoute(
+      path: '/projects/:projectId',
+      builder: (BuildContext context, GoRouterState state) {
+        final projectId = int.parse(state.pathParameters['projectId']!);
+        return ProjectDetailPage(projectId: projectId);
+      },
+      routes: [
+         // Nested route for Project Transactions
+        GoRoute(
+          path: 'transactions',
+          builder: (BuildContext context, GoRouterState state) {
+            final projectId = int.parse(state.pathParameters['projectId']!);
+            return ProjectTransactionsPage(projectId: projectId);
+          },
+        ),
+      ]
+    ),
+    
+    // Global route for User Transactions
+    GoRoute(
+      path: '/my-transactions',
+      builder: (BuildContext context, GoRouterState state) {
+        return const MyTransactionsPage();
+      },
+    ),
   ],
 );
