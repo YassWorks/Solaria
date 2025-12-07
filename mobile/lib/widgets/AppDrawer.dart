@@ -2,49 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/colors.dart';
 import '../services/local_storage.dart';
-
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
+  void _logout(BuildContext context) async {
+    Navigator.pop(context);
+
+    await LocalStorage.clear(); 
+
+    context.go('/login'); 
+  }
+
   @override
   Widget build(BuildContext context) {
-    // List of menu items based on the provided image
+    // Liste des éléments du menu basés sur l'image
     final List<Map<String, dynamic>> drawerItems = [
-      {'title': 'My Statistics', 'icon': Icons.trending_up, 'route': '/statistics'},
-      {'title': 'Invite Friends', 'icon': Icons.person_add_alt, 'route': '/invite'},
-      {'title': 'Settings', 'icon': Icons.settings_outlined, 'route': '/settings'},
-      {'title': 'Discover', 'icon': Icons.dashboard_outlined, 'route': '/discover'},
-      {'title': 'Report', 'icon': Icons.bar_chart, 'route': '/report'},
-      {'title': 'Reminder', 'icon': Icons.access_time_outlined, 'route': '/reminder'},
+      {'title': 'My Transactions', 'icon': Icons.dashboard_outlined, 'route': '/my-transactions'},
     ];
 
     return Drawer(
       child: Column(
         children: <Widget>[
-          // Header Section (User Info)*
           Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: SolariaColors.blueDark,
-              // Similar look to the image's dark blue/purple header
-            ),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20), // Ajustement du padding
+            color: const Color(0xFF384078), 
             child: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Icône de fermeture (X)
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
                       icon: const Icon(Icons.close, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero, // Retire le padding par défaut
+                      constraints: const BoxConstraints(), // Retire les contraintes pour un placement précis
                     ),
                   ),
                   const SizedBox(height: 10),
                   // User Avatar
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundImage: AssetImage('assets/user_avatar.png'),
-                    backgroundColor: SolariaColors.azur,
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2), // Bordure blanche autour de l'avatar
+                      image: const DecorationImage(
+                        // L'image de l'avatar doit être fournie dans les assets
+                        image: AssetImage('assets/user_avatar.png'), 
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   // User Name
@@ -52,7 +61,7 @@ class AppDrawer extends StatelessWidget {
                     'Sunny Aveiro',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -61,7 +70,7 @@ class AppDrawer extends StatelessWidget {
                     'arifulisunny@gmail.com',
                     style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                   ),
                 ],
@@ -69,17 +78,17 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           
-          // Menu Items
+          // 2. Menu Items
           Expanded(
             child: ListView.separated(
               padding: EdgeInsets.zero,
               itemCount: drawerItems.length,
               separatorBuilder: (context, index) {
-                 // Add separators where they exist in the image (after Settings, Discover, Report)
-                 if (index == 2 || index == 3 || index == 4) {
-                   return Divider(height: 1, color: Colors.grey.shade300);
-                 }
-                 return const SizedBox.shrink();
+                  // Ajoute les séparateurs après 'Settings', 'Discover', 'Report'
+                  if (index == 2 || index == 3 || index == 4) {
+                    return Divider(height: 1, color: Colors.grey.shade300);
+                  }
+                  return const SizedBox.shrink();
               },
               itemBuilder: (BuildContext context, int index) {
                 final item = drawerItems[index];
@@ -87,12 +96,25 @@ class AppDrawer extends StatelessWidget {
                   leading: Icon(item['icon'], color: SolariaColors.blueDark),
                   title: Text(item['title'] as String),
                   onTap: () {
-                    Navigator.pop(context); // Close the drawer
-                    // Use go_router to navigate
+                    Navigator.pop(context); // Ferme le tiroir
                     context.go(item['route'] as String);
                   },
                 );
               },
+            ),
+          ),
+          
+          // 3. Bouton de Déconnexion (Ajouté en bas)
+          // Utilise une Padding pour simuler un ListTile sans la ListTile elle-même
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListTile(
+              leading: const Icon(Icons.exit_to_app, color: Colors.redAccent),
+              title: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+              ),
+              onTap: () => _logout(context),
             ),
           ),
         ],

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 
 class SolariaButton extends StatelessWidget {
-  final String text;
+  final String? text; 
+  
+  final Widget? child; 
+  
   final bool loading;
   final VoidCallback? onPressed;
   final Color? color;
@@ -10,15 +13,26 @@ class SolariaButton extends StatelessWidget {
 
   const SolariaButton({
     super.key,
-    required this.text,
+    this.text, // Optionnel
+    this.child, // Nouveau
     this.onPressed,
     this.loading = false,
     this.color,
     this.margin = const EdgeInsets.only(top: 10),
-  });
+  }) : assert(
+          // Assurez-vous qu'au moins l'un des deux est fourni
+          child != null || text != null,
+          'SolariaButton must have either a non-null "child" or a non-null "text".',
+        );
 
   @override
   Widget build(BuildContext context) {
+    final buttonContent = child ?? 
+        Text(
+          text!, 
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        );
+        
     return Container(
       margin: margin,
       width: double.infinity,
@@ -34,10 +48,7 @@ class SolariaButton extends StatelessWidget {
         ),
         child: loading
             ? const CircularProgressIndicator(color: Colors.white)
-            : Text(
-                text,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-              ),
+            : buttonContent,
       ),
     );
   }
