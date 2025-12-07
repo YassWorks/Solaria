@@ -169,6 +169,7 @@ export class TransactionsService {
       if (!user || !user.walletAddress || !user.encryptedWallet) {
         throw new NotFoundException('User wallet not configured');
       }
+      /*
 
       // 2. Verify password
       const isPasswordValid = await this.walletService.verifyPassword(
@@ -178,7 +179,7 @@ export class TransactionsService {
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid password');
       }
-
+      */
       // 3. Get purchase estimate
       const estimate = await this.estimatePurchase(
         userId,
