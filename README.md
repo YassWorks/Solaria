@@ -8,7 +8,6 @@
 
 **Tokenized renewable energy production shares with AI-powered predictions and automated credit distribution**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Blockchain](https://img.shields.io/badge/Blockchain-ERC--1155-blue.svg)](https://docs.openzeppelin.com/contracts/4.x/erc1155)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.1-02569B?logo=flutter)](https://flutter.dev)
 [![NestJS](https://img.shields.io/badge/NestJS-11.0-E0234E?logo=nestjs)](https://nestjs.com)
