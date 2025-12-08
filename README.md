@@ -80,7 +80,7 @@ Solaria tokenizes renewable energy installations as ERC-1155 tokens, allowing an
 │                                                             │
 │  ┌──────────────┐     ┌──────────────┐     ┌─────────────┐  │
 │  │              │     │              │     │             │  │
-│  │   Mobile     │────▶│   Backend    │────▶│  Blockchain│  │
+│  │   Mobile     │────>│   Backend    │────>│  Blockchain │  │
 │  │   (Flutter)  │     │   (NestJS)   │     │  (Hardhat)  │  │
 │  │              │     │              │     │             │  │
 │  └──────────────┘     └──────────────┘     └─────────────┘  │
@@ -88,8 +88,8 @@ Solaria tokenizes renewable energy installations as ERC-1155 tokens, allowing an
 │         │                    ▼                     │        │
 │         │             ┌──────────────┐             │        │
 │         │             │              │             │        │
-│         └────────────▶│   MongoDB    │◀────────────┘       │
-│                       │              │                      │
+│         └────────────>│   MongoDB    │<────────────┘        │
+│                       │   (Atlas)    │                      │
 │                       └──────────────┘                      │
 │                              │                              │
 │                              ▼                              │
