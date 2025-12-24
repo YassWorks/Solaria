@@ -14,7 +14,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python)](https://python.org)
 [![Hardhat](https://img.shields.io/badge/Hardhat-2.27-FFF100?logo=ethereum)](https://hardhat.org)
 
-[Features](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Documentation](#-documentation)
 
 </div>
 
